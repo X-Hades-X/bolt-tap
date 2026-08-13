@@ -1,0 +1,10 @@
+:host {
+  display: flex;
+  align-items: center;
+}
+
+.printer-error {
+  margin: 0 0 0 var(--app-spacing, 12px);
+  color: var(--app-red, #eb445a);
+  font-size: 0.85rem;
+}

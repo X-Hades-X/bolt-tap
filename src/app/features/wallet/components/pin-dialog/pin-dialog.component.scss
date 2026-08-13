@@ -1,0 +1,48 @@
+.pin-sheet {
+  --background: var(--app-surface, #3d4454);
+
+  &__handle {
+    width: 48px;
+    height: 5px;
+    border-radius: 3px;
+    background: var(--app-text-dim, #a4b0be);
+    margin: 12px auto 4px;
+    cursor: pointer;
+  }
+
+  &__title {
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--app-text, #f5f5f5);
+    margin: 12px 0 20px;
+  }
+}
+
+.pin-dots {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.pin-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--app-text, #f5f5f5);
+  background: transparent;
+  transition: background 0.12s ease;
+
+  &--filled {
+    background: var(--app-text, #f5f5f5);
+  }
+}
+
+app-numpad {
+  display: block;
+  padding: 0 24px;
+  /* Edge-to-edge on Android 15+: keep the bottom numpad row above the
+     system navigation bar (0px fallback — no inset on older devices). */
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+}

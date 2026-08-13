@@ -1,0 +1,158 @@
+/*
+ * App Global CSS
+ * ----------------------------------------------------------------------------
+ * Put style rules here that you want to apply globally. These styles are for
+ * the entire app and not just one component. Additionally, this file can be
+ * used as an entry point to import other CSS/Sass files to be included in the
+ * output CSS.
+ * For more information on global stylesheets, visit the documentation:
+ * https://ionicframework.com/docs/layout/global-stylesheets
+ */
+
+/* Core CSS required for Ionic components to work properly */
+@import "@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+
+/* Optional CSS utils that can be commented out */
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+/**
+ * Ionic Dark Mode
+ * -----------------------------------------------------
+ * For more info, please see:
+ * https://ionicframework.com/docs/theming/dark-mode
+ */
+
+@import "@ionic/angular/css/palettes/dark.always.css";
+@import "theme/variables";
+
+/**
+ * Center content utility
+ * -----------------------------------------------------
+ * Use this class to center content vertically and horizontally within ion-content.
+ * Content will be centered when it fits, and scrollable when it exceeds viewport.
+ *
+ * Uses min-height: 100% to fill the scroll container height, allowing
+ * justify-content: center to work for vertical centering.
+ */
+.center-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100%;
+  padding: 32px 0 48px;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.message {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 30px;
+}
+
+.ion-flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.ion-flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+/**
+ * Shared action button
+ * -----------------------------------------------------
+ * The single button language for the whole app: full-width, rounded,
+ * orange primary. Use .app-button--ghost for secondary actions.
+ */
+.app-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 18px;
+  border: none;
+  border-radius: 16px;
+  background: var(--app-orange, #f7931a);
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s ease, opacity 0.15s ease;
+
+  ion-icon {
+    font-size: 1.4rem;
+  }
+
+  ion-spinner {
+    color: #fff;
+    height: 1.4em;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &--ghost {
+    background: transparent;
+    color: var(--app-text-dim, #a4b0be);
+  }
+}
+
+.menu-list {
+  width: 100%;
+
+  ion-icon {
+    padding-right: 12px;
+  }
+}
+
+/**
+ * PIN bottom-sheet modal
+ * -----------------------------------------------------
+ * Presents the PIN dialog as a dark bottom sheet with rounded top corners.
+ */
+ion-modal.pin-sheet-modal {
+  --background: var(--app-surface, #3d4454);
+  --border-radius: 20px 20px 0 0;
+
+  &::part(handle) {
+    background: var(--app-text-dim, #a4b0be);
+  }
+}
+
+/**
+ * Info bottom-sheet modal
+ * -----------------------------------------------------
+ * The single popup language (settings explanations, print feedback) — same
+ * dark bottom-sheet look as the PIN sheet, but auto-height and bottom-anchored
+ * with NO breakpoints: no drag handle, no snap-back; oversized content simply
+ * scrolls inside the sheet. Dismissal is via the sheet's own buttons/backdrop.
+ */
+ion-modal.info-sheet-modal {
+  --background: var(--app-surface, #3d4454);
+  --border-radius: 20px 20px 0 0;
+  --height: auto;
+  --max-height: 85%;
+
+  align-items: flex-end;
+}

@@ -1,0 +1,168 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ title }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="invoice-page">
+    <!-- Info rows -->
+    <div class="info-rows">
+      <div class="info-row">
+        <span class="info-row__label">Network</span>
+        <span class="info-row__value info-row__value--network">{{ networkLabel }}</span>
+      </div>
+      @if (label) {
+        <div class="info-row">
+          <span class="info-row__label">Label</span>
+          <span class="info-row__value info-row__value--truncate" [title]="label">{{ label }}</span>
+        </div>
+      }
+      @if (amount !== undefined) {
+        <div class="info-row">
+          <span class="info-row__label info-row__label--accent">{{ amountLabel }}</span>
+          <span class="info-row__value info-row__value--accent">{{ amount | satsFormat }} sats</span>
+        </div>
+      }
+    </div>
+
+    <!-- Tap-to-pay hint + scanner, or processing indicator -->
+    @if (processing) {
+      <div class="tap-hint processing">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p class="tap-hint__text">Processing...</p>
+      </div>
+    } @else {
+      <div class="tap-hint">
+        @if (canvasReady || isPresignFallback) {
+          <app-nfc-scanner></app-nfc-scanner>
+        }
+        <p class="tap-hint__text">{{ actionHint }}</p>
+        @if (!isPresignFallback) {
+          <p class="tap-hint__sub">or scan invoice</p>
+        }
+      </div>
+    }
+
+    <!-- QR code: blurred until tapped — the code is a spendable secret.
+         Hidden entirely in the presign fallback: the fallback artifact is the
+         owner's lnurlw — as QR it would hand any wallet the full-range
+         withdraw rights (plus it would need the PIN leaked to be usable). -->
+    @if (!isPresignFallback) {
+    <div class="canvas-container">
+      <div
+        class="qr-frame"
+        role="button"
+        tabindex="0"
+        [attr.aria-label]="qrRevealed ? 'Copy QR data to clipboard' : 'Reveal QR code'"
+        (click)="onQrTap()"
+        (keydown.enter)="onQrTap()"
+        (keydown.space)="onQrTap()">
+        <canvas #qrCanvas [ngClass]="{'canvas-hidden': !canvasReady, 'canvas-blur': canvasReady && !qrRevealed}"></canvas>
+        @if (canvasReady && !qrRevealed) {
+          <div class="qr-spoiler">
+            <div class="qr-spoiler__badge">
+              <ion-icon name="eye-off-outline"></ion-icon>
+              <span class="qr-spoiler__title">Tap to reveal</span>
+              <span class="qr-spoiler__sub">Sensitive — keep it private</span>
+            </div>
+          </div>
+        }
+      </div>
+      @if (!canvasReady) {
+        <ion-spinner></ion-spinner>
+      } @else if (printerEnabled) {
+        <div class="button-container">
+          <app-print-preview-page></app-print-preview-page>
+          <ion-button shape="round" (click)="onPrint()" (keydown.enter)="onPrint()" [disabled]="!canvasReady || !printerConnected || printing">Print QR</ion-button>
+        </div>
+      }
+    </div>
+    }
+
+    <div class="spacer"></div>
+
+    @if (!isPresignFallback) {
+      <p class="scan-note">Scanning the invoice with another device will not be confirmed here.</p>
+    }
+
+    <!-- Return home -->
+    <div class="home-container">
+      <button type="button" class="app-button" (click)="returnHome()" (keydown.enter)="returnHome()" (keydown.space)="returnHome()">
+        Return to Home
+      </button>
+    </div>
+  </div>
+
+  <!-- Full-screen printing indicator: encoding + BLE transfer + printer
+       spooling take a few seconds before the printer visibly starts. -->
+  @if (printing) {
+    <div class="result-overlay result-overlay--printing">
+      <ion-spinner name="crescent"></ion-spinner>
+      <h1 class="result-overlay__headline">Printing...</h1>
+    </div>
+  }
+
+  <!-- Full-screen payment result -->
+  @if (paymentResult) {
+    <div class="result-overlay" [class.result-overlay--success]="paymentResult.success">
+      <ion-icon
+        class="result-overlay__icon"
+        [name]="paymentResult.success ? 'checkmark-circle-outline' : 'close-circle-outline'">
+      </ion-icon>
+
+      @if (paymentResult.success) {
+        <h1 class="result-overlay__headline">
+          @if (amount === undefined) {
+            {{ direction === 'receive' ? 'Received' : 'Paid' }}
+          } @else {
+            {{ direction === 'receive' ? 'Received' : 'Paid' }} {{ amount | satsFormat }} SAT
+          }
+        </h1>
+        <button
+          type="button"
+          class="result-overlay__button result-overlay__button--light"
+          (click)="dismissResult(false)"
+          (keydown.enter)="dismissResult(false)"
+          (keydown.space)="dismissResult(false)">
+          <ion-icon name="home-outline"></ion-icon>
+          Return to Home
+        </button>
+      } @else {
+        <h1 class="result-overlay__headline">Payment failed</h1>
+        <p class="result-overlay__reason">{{ paymentResult.message }}</p>
+        @if (paymentResult.pinRetry) {
+          <!-- Wrong PIN in the fallback: go back so the PIN can be entered again. -->
+          <button
+            type="button"
+            class="result-overlay__button result-overlay__button--primary"
+            (click)="retryWithNewPin()"
+            (keydown.enter)="retryWithNewPin()"
+            (keydown.space)="retryWithNewPin()">
+            Enter PIN again
+          </button>
+        } @else {
+          <button
+            type="button"
+            class="result-overlay__button result-overlay__button--primary"
+            (click)="dismissResult(true)"
+            (keydown.enter)="dismissResult(true)"
+            (keydown.space)="dismissResult(true)">
+            Try Again
+          </button>
+        }
+        <button
+          type="button"
+          class="result-overlay__button result-overlay__button--ghost"
+          (click)="dismissResult(false)"
+          (keydown.enter)="dismissResult(false)"
+          (keydown.space)="dismissResult(false)">
+          Return to Home
+        </button>
+      }
+    </div>
+  }
+</ion-content>

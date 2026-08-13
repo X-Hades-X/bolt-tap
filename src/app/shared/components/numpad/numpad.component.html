@@ -1,0 +1,36 @@
+<div class="numpad">
+  @for (row of rows; track row) {
+    <div class="numpad-row">
+      @for (key of row; track key) {
+        <button
+          type="button"
+          class="numpad-key"
+          (click)="onDigit(key)"
+          [attr.aria-label]="key">
+          {{ key }}
+        </button>
+      }
+    </div>
+  }
+  <div class="numpad-row">
+    <span class="numpad-key numpad-key--spacer"></span>
+    <button
+      type="button"
+      class="numpad-key"
+      (click)="onDigit('0')"
+      aria-label="0">
+      0
+    </button>
+    @if (hasValue) {
+      <button
+        type="button"
+        class="numpad-key numpad-key--action"
+        (click)="onBackspace()"
+        aria-label="Backspace">
+        <ion-icon name="backspace-outline"></ion-icon>
+      </button>
+    } @else {
+      <span class="numpad-key numpad-key--spacer"></span>
+    }
+  </div>
+</div>

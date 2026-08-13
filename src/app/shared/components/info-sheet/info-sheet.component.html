@@ -1,0 +1,21 @@
+<div class="info-sheet">
+  <h2 class="info-sheet__title">{{ title }}</h2>
+
+  <div class="info-sheet__body">
+    @for (section of sections; track $index) {
+      @if (section.heading) {
+        <h3 class="info-sheet__heading">{{ section.heading }}</h3>
+      }
+      <p class="info-sheet__text">{{ section.text }}</p>
+    }
+  </div>
+
+  <div class="info-sheet__buttons">
+    @for (button of buttons; track button.role) {
+      <button
+        class="app-button"
+        [class.app-button--ghost]="button.style === 'ghost'"
+        (click)="dismiss(button.role)">{{ button.text }}</button>
+    }
+  </div>
+</div>

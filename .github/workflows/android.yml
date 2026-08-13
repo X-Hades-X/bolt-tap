@@ -1,0 +1,147 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+
+# Needed to create the draft release and upload the APK on tag runs
+# (the default token is read-only there). Fork PRs stay read-only regardless.
+permissions:
+  contents: write
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - suffix: ''
+            angularConfig: noble
+            noble: true
+          - suffix: '-printer'
+            angularConfig: production
+            noble: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Strip Bluetooth dependencies (noble)
+        if: matrix.noble
+        run: |
+          npm pkg delete "dependencies.@capacitor-community/bluetooth-le" "dependencies.@mmote/niimbluelib"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        if: ${{ !matrix.noble }}
+        run: npm run lint
+
+      - name: Unit tests
+        if: ${{ !matrix.noble }}
+        run: npm test -- --watch=false --browsers=ChromeHeadlessCI
+
+      - name: Build web bundle (${{ matrix.angularConfig }})
+        run: npx ng build --configuration=${{ matrix.angularConfig }}
+
+      - name: Sync Capacitor Android
+        run: npx cap sync android
+
+      - name: Strip Bluetooth manifest permissions (noble)
+        if: matrix.noble
+        run: |
+          sed -i '/android.permission.BLUETOOTH/d;/android.permission.ACCESS_FINE_LOCATION/d' android/app/src/main/AndroidManifest.xml
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./android/gradlew
+
+      - name: Build debug APK
+        run: cd android && ./gradlew assembleDebug
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: bolt-tap${{ matrix.suffix }}-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14
+
+      # --- Tagged releases (v*) only -------------------------------------
+      # Signed APK when the keystore secrets are configured on the repo
+      # (KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS); without secrets the
+      # release build simply comes out unsigned. The noble variant always
+      # ships unsigned.
+      - name: Prepare signing keystore (optional, full variant)
+        if: startsWith(github.ref, 'refs/tags/v') && !matrix.noble
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+            echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
+            {
+              echo "storeFile=${{ github.workspace }}/android/app/release.keystore"
+              echo "storePassword=$KEYSTORE_PASSWORD"
+              echo "keyAlias=$KEY_ALIAS"
+              echo "keyPassword=$KEYSTORE_PASSWORD"
+            } > android/keystore.properties
+          else
+            echo "No keystore secrets configured — APK will be unsigned."
+          fi
+
+      - name: Build release APK
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: cd android && ./gradlew assembleRelease
+
+      - name: Rename APK for release asset
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: mv android/app/build/outputs/apk/release/app-release*.apk android/app/build/outputs/apk/release/bolt-tap${{ matrix.suffix }}.apk
+
+      # Both matrix jobs upload to the same draft release; the body is
+      # identical from either job, and both APK files get attached.
+      - name: Upload APK to draft release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          body: |
+            **Bolt Tap ${{ github.ref_name }} — public alpha**
+
+            Stateless Lightning wallet for Bolt Cards: tap the card → enter
+            an amount → get an invoice or a bearer-voucher QR → print it on a
+            Niimbot label printer or tap the card to pay. No keys stored,
+            no balances tracked.
+
+            ⚠️ **Alpha: test with small amounts.** Bearer vouchers are money.
+
+            ## Which APK?
+
+            | APK | Pick this | Bluetooth |
+            |---|---|---|
+            | `bolt-tap.apk` | **Most users** | None — no BLE libraries, no `BLUETOOTH*`/`ACCESS_FINE_LOCATION` permissions, printer UI absent |
+            | `bolt-tap-printer.apk` | You own a Niimbot label printer | Full printer support over BLE |
+
+            APKs are currently unsigned (Android will warn) — signature
+            arrives with a later release. Requires the
+            [boltcards backend fork](https://github.com/X-Hades-X/boltcards/tree/feature/pin_presign)
+            and a programmed Bolt Card (e.g. via
+            [Bolt Card NFC Programmer](https://github.com/boltcard/bolt-nfc-android-app)).
+
+            Human-architected, LLM-written, human-reviewed. MIT licensed.
+          files: android/app/build/outputs/apk/release/bolt-tap${{ matrix.suffix }}.apk

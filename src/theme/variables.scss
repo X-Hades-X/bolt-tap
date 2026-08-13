@@ -1,0 +1,39 @@
+// For information on how to create your own theme, please refer to:
+// https://ionicframework.com/docs/theming/
+
+:root {
+  --ion-background-color: #2f3542;
+  --ion-color-primary: #f7931a;
+  --ion-color-primary-contrast: #2f3542;
+  --ion-color-secondary: #00C8D7;
+  --ion-color-secondary-contrast: #2f3542;
+  --ion-color-tertiary: #F5F5F5;
+  --ion-color-tertiary-contrast: #2f3542;
+
+  /* App palette (reference-inspired) */
+  --app-bg: #2f3542;
+  --app-surface: #3d4454;
+  --app-surface-light: #57606f;
+  --app-orange: #f7931a;
+  --app-yellow: #ffd930;
+  --app-red: #ff4757;
+  --app-green: #2ed573;
+  --app-text: #f5f5f5;
+  --app-text-dim: #a4b0be;
+
+  /* Card / surface */
+  --ion-card-background: #3d4454;
+  --ion-item-background: transparent;
+
+  /* Toolbar / header / footer */
+  --ion-toolbar-background: #2f3542;
+  --ion-toolbar-color: #F5F5F5;
+
+  /* Tab bar */
+  --ion-tab-bar-background: #2f3542;
+  --ion-tab-bar-color: #888;
+  --ion-tab-bar-color-selected: #f7931a;
+
+  /* Text */
+  --ion-text-color: #F5F5F5;
+}

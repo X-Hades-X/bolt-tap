@@ -1,0 +1,60 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ isWithdraw ? 'Send' : 'Receive' }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="amount-page">
+    <!-- Limits info line -->
+    <div class="limits-info">
+      @if (pinLimitSats !== undefined) {
+        <span>PIN Limit: {{ pinLimitSats | satsFormat }}</span>
+      }
+      <span>Min: {{ minSats | satsFormat }}</span>
+      <span>Max: {{ maxSats | satsFormat }}</span>
+    </div>
+
+    <!-- Large live readout -->
+    <div class="amount-readout">
+      <span class="amount-readout__value" [class.amount-readout__value--invalid]="hasValue && !amountValid">
+        {{ amountSats | satsFormat }}
+      </span>
+      <span class="amount-readout__unit">SAT</span>
+    </div>
+
+    <div class="spacer"></div>
+
+    <!-- Custom numpad -->
+    <app-numpad
+      [hasValue]="hasValue"
+      (digit)="onDigit($event)"
+      (backspace)="onBackspace()">
+    </app-numpad>
+
+    <!-- Server rejection reason (e.g. wrong PIN) -->
+    @if (submitError) {
+      <p class="submit-error">{{ submitError }}</p>
+    }
+
+    <!-- Full-width action button -->
+    <div class="action-container">
+      <button
+        type="button"
+        class="app-button"
+        [disabled]="!amountValid || submitting"
+        (click)="onConfirm()"
+        (keydown.enter)="onConfirm()"
+        (keydown.space)="onConfirm()">
+        @if (submitting) {
+          <ion-spinner name="crescent"></ion-spinner>
+        } @else {
+          {{ actionLabel }}
+        }
+      </button>
+    </div>
+  </div>
+</ion-content>

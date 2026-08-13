@@ -1,0 +1,40 @@
+<ion-content [fullscreen]="true">
+  <!-- INIT PHASE -->
+  <ng-template #initPhase>
+    <div class="center-content">
+      <app-nfc-scanner></app-nfc-scanner>
+      <div class="home-actions">
+        <button type="button" class="app-button" (click)="readClipboard()" (keydown.enter)="readClipboard()" (keydown.space)="readClipboard()">
+          Read from Clipboard
+        </button>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- ERROR -->
+  <ng-template #error>
+    <div class="center-content">
+      <div class="error">
+        <ion-icon aria-hidden="true" name="warning-outline"></ion-icon>
+        <div class="message">
+          Couldn't parse an LNURL.<br>Please try again.
+        </div>
+      </div>
+      <div class="home-actions">
+        <button type="button" class="app-button" (click)="currentPhase='init'" (keydown.enter)="currentPhase='init'" (keydown.space)="currentPhase='init'">
+          Return
+        </button>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- Render template based on phase -->
+  @switch (currentPhase) {
+    @case ('init') {
+      <ng-container *ngTemplateOutlet="initPhase"></ng-container>
+    }
+    @default {
+      <ng-container *ngTemplateOutlet="error"></ng-container>
+    }
+  }
+</ion-content>

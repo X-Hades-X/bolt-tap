@@ -1,0 +1,37 @@
+.center-content {
+  padding-top: 20px;
+}
+
+.settings-list {
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 20px;
+  background: transparent;
+  padding-top: 0;
+
+  ion-item {
+    --background: transparent;
+    --border-color: var(--app-surface, #3d4454);
+    --padding-start: 20px;
+    --padding-end: 20px;
+    --min-height: 60px;
+    font-size: 1.05rem;
+
+    ion-icon {
+      color: var(--app-text-dim, #a4b0be);
+    }
+
+    ion-label {
+      font-weight: 600;
+    }
+
+    .info-button {
+      --color: var(--app-text-dim, #a4b0be);
+      margin: 0;
+
+      &::part(native) {
+        padding: 0 8px;
+      }
+    }
+  }
+}

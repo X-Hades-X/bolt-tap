@@ -1,0 +1,24 @@
+@if (this.nfcEnabled) {
+  <strong class="message">Tap Bolt Card</strong>
+
+  <div class="animation">
+    <img
+      src="assets/images/boltcardscanA.png"
+      class="frame frame1"
+      alt="Bolt Card animation frame 1"
+      height="200" width="200"/>
+    <img
+      src="assets/images/boltcardscanB.png"
+      class="frame frame2"
+      alt="Bolt Card animation frame 2"
+      height="200" width="200"/>
+  </div>
+}
+
+<!-- iOS starts with nfcEnabled=false until the user grants the session, so
+     this must live outside the nfcEnabled block or it would be unreachable. -->
+@if (this.isIos && !this.nfcEnabled) {
+  <div class="ion-flex-column">
+    <ion-button (click)="grantNfcPermission()" (keydown.enter)="grantNfcPermission()" (keydown.space)="grantNfcPermission()">Enable NFC & Scan</ion-button>
+  </div>
+}

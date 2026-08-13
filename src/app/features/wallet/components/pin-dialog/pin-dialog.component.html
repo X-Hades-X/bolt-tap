@@ -1,0 +1,17 @@
+<ion-content class="pin-sheet">
+  <div class="pin-sheet__handle" (click)="dismiss()" (keydown.enter)="dismiss()" tabindex="0" role="button" aria-label="Close"></div>
+
+  <h2 class="pin-sheet__title">Bolt Card PIN</h2>
+
+  <div class="pin-dots">
+    @for (filled of pinDigits; track $index) {
+      <span class="pin-dot" [class.pin-dot--filled]="filled"></span>
+    }
+  </div>
+
+  <app-numpad
+    [hasValue]="hasValue"
+    (digit)="onDigit($event)"
+    (backspace)="onBackspace()">
+  </app-numpad>
+</ion-content>

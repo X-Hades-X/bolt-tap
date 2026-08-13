@@ -1,0 +1,42 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 8px 0;
+  width: 100%;
+}
+
+.animation {
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
+
+.frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  opacity: 0;
+  animation: tapFrames 1s steps(1) infinite;
+}
+
+.frame1 {
+  animation-delay: 0s;
+}
+
+.frame2 {
+  animation-delay: 0.5s;
+}
+
+@keyframes tapFrames {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

@@ -1,0 +1,14 @@
+<ion-button
+  shape="round"
+  [disabled]="isBusy"
+  (click)="scan()"
+  (keydown.enter)="scan()">
+  @if (isBusy) {
+    <ion-spinner slot="start" name="crescent"></ion-spinner>
+  }
+  {{ buttonText }}
+</ion-button>
+
+@if (errorMessage) {
+  <p class="printer-error">{{ errorMessage }}</p>
+}

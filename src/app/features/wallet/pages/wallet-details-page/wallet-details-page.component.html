@@ -1,0 +1,120 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="reset()" (keydown.enter)="reset()" (keydown.space)="reset()">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Wallet</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  @if (currentPhase === 'loading') {
+    <div class="center-content">
+      <div class="message">Fetching data...</div>
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  }
+
+  @if (currentPhase === 'error') {
+    <div class="center-content">
+      <div class="message">Something went wrong</div>
+      <p class="error-text">{{ errorMessage }}</p>
+      <ion-button shape="round" class="retry-button" (click)="retry()" (keydown.enter)="retry()" (keydown.space)="retry()">
+        Retry
+      </ion-button>
+    </div>
+  }
+
+  @if (currentPhase === 'result') {
+    <div class="details">
+      <!-- Card title: truncated to 2 lines, tap to expand when long -->
+      <div
+        class="card-title"
+        [class.card-title--expanded]="titleExpanded"
+        (click)="toggleTitle()"
+        (keydown.enter)="toggleTitle()"
+        tabindex="0"
+        role="button">
+        <span class="card-title__text">{{ cardTitle }}</span>
+      </div>
+
+      <!-- Collapsible card limits -->
+      <button type="button" class="limits-toggle" (click)="toggleLimits()">
+        <ion-icon [name]="limitsExpanded ? 'caret-down-outline' : 'play-forward-outline'"></ion-icon>
+        <span>{{ limitsExpanded ? 'Hide card limits' : 'Show card limits' }}</span>
+      </button>
+
+      @if (limitsExpanded) {
+        <div class="limits">
+          @if (lnurlPayData) {
+            <div class="limits-group">
+              <div class="limits-group__header">Receive</div>
+              <div class="limits-row">
+                <span class="limits-row__label">
+                  <ion-icon name="caret-down-outline"></ion-icon> Min
+                </span>
+                <span class="limits-row__value">{{ receiveMinSats | satsFormat }} sats</span>
+              </div>
+              <div class="limits-row">
+                <span class="limits-row__label">
+                  <ion-icon name="caret-up-outline"></ion-icon> Max
+                </span>
+                <span class="limits-row__value">{{ receiveMaxSats | satsFormat }} sats</span>
+              </div>
+            </div>
+          }
+
+          @if (lnurlWithdrawData) {
+            <div class="limits-group">
+              <div class="limits-group__header">Send</div>
+              @if (pinLimitSats !== undefined) {
+                <div class="limits-row">
+                  <span class="limits-row__label">
+                    <ion-icon name="lock-closed-outline"></ion-icon> PIN Limit
+                  </span>
+                  <span class="limits-row__value">{{ pinLimitSats | satsFormat }} sats</span>
+                </div>
+              }
+              <div class="limits-row">
+                <span class="limits-row__label">
+                  <ion-icon name="caret-up-outline"></ion-icon> Max
+                </span>
+                <span class="limits-row__value">{{ sendMaxSats | satsFormat }} sats</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <div class="spacer"></div>
+
+      <!-- Large round action buttons -->
+      <div class="action-buttons">
+        @if (lnurlPayData) {
+          <button
+            type="button"
+            class="action-button"
+            (click)="onReceive()"
+            (keydown.enter)="onReceive()"
+            (keydown.space)="onReceive()">
+            <ion-icon name="return-up-back-outline"></ion-icon>
+            <span>Receive</span>
+          </button>
+        }
+        @if (lnurlWithdrawData) {
+          <button
+            type="button"
+            class="action-button"
+            (click)="onWithdraw()"
+            (keydown.enter)="onWithdraw()"
+            (keydown.space)="onWithdraw()">
+            <ion-icon name="return-up-forward-outline"></ion-icon>
+            <span>Send</span>
+          </button>
+        }
+      </div>
+    </div>
+  }
+</ion-content>

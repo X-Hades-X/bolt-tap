@@ -1,0 +1,34 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>
+      Settings
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="center-content">
+    <ion-list class="settings-list">
+      <ion-item>
+        <ion-icon aria-hidden="true" name="flash-outline"></ion-icon>
+        <ion-label>
+          <h3>Presigned vouchers</h3>
+        </ion-label>
+        <ion-button fill="clear" class="info-button" slot="end" (click)="openPresignInfo()" aria-label="About presigned vouchers">
+          <ion-icon slot="icon-only" aria-hidden="true" name="information-circle-outline"></ion-icon>
+        </ion-button>
+        <ion-toggle slot="end" [checked]="presignEnabled" (ionChange)="onPresignToggle($event)" aria-label="Presigned vouchers"></ion-toggle>
+      </ion-item>
+      @if (printerEnabled) {
+        <ion-item>
+          <ion-icon aria-hidden="true" name="document-outline"></ion-icon>
+          <ion-label>Printer</ion-label>
+          <ion-button fill="clear" class="info-button" slot="end" (click)="openPrinterInfo()" aria-label="About printer support">
+            <ion-icon slot="icon-only" aria-hidden="true" name="information-circle-outline"></ion-icon>
+          </ion-button>
+          <app-print-preview-page slot="end"></app-print-preview-page>
+        </ion-item>
+      }
+    </ion-list>
+  </div>
+</ion-content>
